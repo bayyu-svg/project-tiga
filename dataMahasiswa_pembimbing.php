@@ -83,12 +83,13 @@ $data = $conn->query("
 
                     <thead class="bg-gray-100">
                         <tr>
-                            <th class="p-3">No</th>
-                            <th>Nama</th>
-                            <th>Asal Kampus</th>
-                            <th>Pembimbing</th>
-                            <th>Status Penilaian</th>
-                            <th>Aksi</th>
+                            <th class="p-3 text-left w-12">No</th>
+                            <th class="text-left w-48">Nama</th>
+                            <th class="text-left w-48">Asal Kampus</th>
+                            <th class="text-left w-48">Pembimbing</th>
+                            <th class="text-left w-40">Deadline</th>
+                            <th class="text-center w-40">Status Penilaian</th>
+                            <th class="text-center w-32">Aksi</th>
                         </tr>
                     </thead>
 
@@ -102,15 +103,40 @@ $data = $conn->query("
                             </tr>
                         <?php endif; ?>
 
-                        <?php $no = 1;
+                        <?php 
+                        $no = 1;
+                        $today = date('Y-m-d');
                         while ($row = $data->fetch_assoc()): ?>
                             <tr class="border-t hover:bg-gray-50">
-
-                                <td class="p-3"><?= $no++ ?></td>
-                                <td><?= $row['nama_mahasiswa'] ?></td>
-                                <td><?= $row['asal_kampus'] ?></td>
-                                <td><?= $row['nama_pembimbing'] ?></td>
-
+                                <!-- NO -->
+                                <td class="p-3 text-left"><?= $no++ ?></td>
+                                <!-- NAMA -->
+                                <td class="text-left"><?= htmlspecialchars($row['nama_mahasiswa']) ?></td>
+                                <!-- ASAL -->
+                                <td class="text-left"><?= htmlspecialchars($row['asal_kampus']) ?></td>
+                                <!-- PEMBIMBING -->
+                                <td class="text-left"><?= htmlspecialchars($row['nama_pembimbing']) ?></td>
+                                <!-- DEADLINE -->
+                                <td class="text-left whitespace-nowrap">
+                                    <?= $row['deadline'] ?? '-' ?>
+                                    <?php
+                                    if (!empty($row['deadline'])) {
+                                        // 🔴 TERLAMBAT (BELUM DINILAI)
+                                        if ($row['deadline'] < $today && $row['sudah_dinilai'] == 0) {
+                                            echo "<span class='text-red-600 ml-2 font-semibold'>Terlambat</span>";
+                                        }
+                                        // 🟡 HARI INI (BELUM DINILAI)
+                                        elseif ($row['deadline'] == $today && $row['sudah_dinilai'] == 0) {
+                                            echo "<span class='text-yellow-500 ml-2 font-semibold'>Hari ini</span>";
+                                        }
+                                        // 🟢 SUDAH DINILAI (AMAN)
+                                        elseif ($row['sudah_dinilai'] > 0) {
+                                            echo "<span class='text-green-600 ml-2 font-semibold'>Selesai</span>";
+                                        }
+                                    }
+                                    ?>
+                                </td>
+                    
                                 <!-- STATUS -->
                                 <td class="space-x-3">
 

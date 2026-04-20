@@ -162,10 +162,11 @@ $totalPage = max(ceil($totalData / $limit), 1);
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="p-3 text-left">No</th>
-                            <th>Nama</th>
-                            <th>NIM</th>
-                            <th>Asal Kampus</th>
-                            <th>Pembimbing</th>
+                            <th class="text-left">Nama</th>
+                            <th class="text-left">NIM</th>
+                            <th class="text-left">Asal Kampus</th>
+                            <th class="text-left">Pembimbing</th>
+                            <th class="text-left">Deadline</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -187,6 +188,17 @@ $totalPage = max(ceil($totalData / $limit), 1);
                                 <td><?= htmlspecialchars($row['nim']) ?></td>
                                 <td><?= htmlspecialchars($row['asal_kampus']) ?></td>
                                 <td><?= htmlspecialchars($row['nama_pembimbing'] ?? '-') ?></td>
+                                <td><?= $row['deadline'] ?>
+                                <?php
+                                $today = date('Y-m-d');
+                                if ($row['deadline'] && $row['deadline'] < $today) {
+                                    echo "<span class='text-red-600 ml-2'>Terlambat</span>";
+                                    } elseif 
+                                    ($row['deadline'] == $today) {
+                                        echo "<span class='text-yellow-500 ml-2'>Hari ini</span>";
+                                    }
+                                ?>
+                                </td>
 
                                 <td class="text-center space-x-3">
 
@@ -354,6 +366,12 @@ ${options}
 <div class="mb-3">
 <label>Periode Magang</label>
 <input type="text" name="periode" value="${d.periode_magang ?? ''}"
+class="w-full border rounded p-2">
+</div>
+
+<div class="mb-3">
+<label>Deadline Penilaian</label>
+<input type="date" name="deadline" value="${d.deadline ?? ''}"
 class="w-full border rounded p-2">
 </div>
 

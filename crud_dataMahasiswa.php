@@ -1,6 +1,7 @@
 <?php
 require_once "include/session.php";
 require_once "koneksi.php";
+require_once "include/mail.php";
 
 $action = $_GET['action'] ?? '';
 
@@ -26,6 +27,7 @@ WHERE m.id_mahasiswa=$id
 }
 
 if ($action == 'add') {
+
     $nama = $_POST['nama'];
     $nim = $_POST['nim'];
     $asal = $_POST['asal'];
@@ -33,13 +35,38 @@ if ($action == 'add') {
     $pembimbing = $_POST['pembimbing'];
     $periode = $_POST['periode'];
     $kontak = $_POST['kontak'];
+    $deadline = $_POST['deadline'];
 
+    // INSERT mahasiswa dulu
     $conn->query("
-INSERT INTO tb_mahasiswa
-(nama_mahasiswa,nim,asal_kampus,divisi,id_pembimbing,periode_magang,nomor_hp)
-VALUES
-('$nama','$nim','$asal','$divisi','$pembimbing','$periode','$kontak')
-");
+        INSERT INTO tb_mahasiswa
+        (nama_mahasiswa,nim,asal_kampus,divisi,id_pembimbing,periode_magang,nomor_hp,deadline)
+        VALUES
+        ('$nama','$nim','$asal','$divisi','$pembimbing','$periode','$kontak','$deadline')
+    ");
+
+    // =========================
+    // AMBIL DATA PEMBIMBING
+    // =========================
+    $pembimbingData = $conn->query("
+        SELECT nama_pembimbing, email
+        FROM tb_pembimbing
+        WHERE id_pembimbing = $pembimbing
+    ")->fetch_assoc();
+
+    // =========================
+    // KIRIM EMAIL
+    // =========================
+    if ($pembimbingData && !empty($pembimbingData['email'])) {
+
+        require_once "include/mail.php";
+
+        kirimEmail(
+            $pembimbingData['email'],
+            $pembimbingData['nama_pembimbing'],
+            $nama
+        );
+    }
 }
 
 if ($action == 'update') {
@@ -51,6 +78,7 @@ if ($action == 'update') {
     $pembimbing = $_POST['pembimbing'];
     $periode = $_POST['periode'];
     $kontak = $_POST['kontak'];
+    $deadline = $_POST['deadline'];
 
     $conn->query("
 UPDATE tb_mahasiswa SET
@@ -60,7 +88,8 @@ asal_kampus='$asal',
 divisi='$divisi',
 id_pembimbing='$pembimbing',
 periode_magang='$periode',
-nomor_hp='$kontak'
+nomor_hp='$kontak',
+deadline='$deadline'
 WHERE id_mahasiswa=$id
 ");
 }

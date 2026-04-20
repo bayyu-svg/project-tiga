@@ -167,6 +167,13 @@ $data = $conn->query("
                             class="border rounded w-96 p-2">
                     </div>
 
+                    <div class="flex items-center">
+                        <label class="w-56">Email</label>
+                        <span class="mr-4">:</span>
+                        <input type="text" name="email"
+                            class="border rounded w-96 p-2">
+                    </div>
+
                 </div>
 
                 <div class="flex justify-end gap-6 mt-10">
@@ -234,6 +241,7 @@ $data = $conn->query("
                     document.querySelector('[name=jabatan]').value = d.jabatan;
                     document.querySelector('[name=divisi]').value = d.divisi;
                     document.querySelector('[name=kontak]').value = d.nomor_hp;
+                    document.querySelector('[name=email]').value = d.email;
                     document.getElementById('pb_id').value = d.id_pembimbing;
                     document.getElementById('modalForm').classList.remove('hidden');
                 });

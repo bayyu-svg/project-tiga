@@ -31,6 +31,18 @@ if ($action == 'add') {
     $jabatan  = $conn->real_escape_string($_POST['jabatan']);
     $divisi   = $conn->real_escape_string($_POST['divisi']);
     $kontak   = $conn->real_escape_string($_POST['kontak']);
+    $email    = $conn->real_escape_string($_POST['email']);
+
+/* ===============================
+   VALIDASI EMAIL
+================================ */
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode([
+        'status' => 'error',
+        'msg' => 'Email tidak valid'
+    ]);
+    exit;
+}
 
     /* ===============================
        1. Buat Username Otomatis
@@ -64,9 +76,9 @@ if ($action == 'add') {
 
     $conn->query("
         INSERT INTO tb_pembimbing
-        (nama_pembimbing, nip, jabatan, divisi, nomor_hp, id_user)
+        (nama_pembimbing, nip, jabatan, divisi, nomor_hp, email, id_user)
         VALUES
-        ('$nama','$nip','$jabatan','$divisi','$kontak','$id_user_baru')
+        ('$nama','$nip','$jabatan','$divisi','$kontak','$email','$id_user_baru')
     ");
 
     echo json_encode(['status' => 'success']);
@@ -84,6 +96,35 @@ if ($action == 'update') {
     $jabatan  = $_POST['jabatan'];
     $divisi   = $_POST['divisi'];
     $kontak   = $_POST['kontak'];
+    $email   = $_POST['email'];
+
+    /* ===============================
+       VALIDASI FORMAT EMAIL
+    =============================== */
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode([
+            'status' => 'error',
+            'msg' => 'Email tidak valid'
+        ]);
+        exit;
+    }
+
+    /* ===============================
+       CEK EMAIL DUPLIKAT
+    =============================== */
+    $cekEmail = $conn->query("
+        SELECT * FROM tb_pembimbing 
+        WHERE email = '$email' 
+        AND id_pembimbing != $id
+    ");
+
+    if ($cekEmail->num_rows > 0) {
+        echo json_encode([
+            'status' => 'error',
+            'msg' => 'Email sudah digunakan'
+        ]);
+        exit;
+    }
 
     $conn->query("
         UPDATE tb_pembimbing SET
@@ -91,7 +132,8 @@ if ($action == 'update') {
         nip = '$nip',
         jabatan = '$jabatan',
         divisi = '$divisi',
-        nomor_hp = '$kontak'
+        nomor_hp = '$kontak',
+        email = '$email'
         WHERE id_pembimbing = $id
     ");
 
